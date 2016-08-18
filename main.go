@@ -148,7 +148,11 @@ func processLinks(links chan string, fail chan error, pool *redis.Pool) {
 			fail <- fmt.Errorf("cannot set downloaded queue: %v", err)
 		}
 
+		// even though these actions are deferred for cases where there is a
+		// non clean exit from the function, we should close them in each loop end
+		// to avoid memory leaking.
 		os.Remove(tempFile.Name())
+		response.Body.Close()
 	}
 }
 
